@@ -1,0 +1,108 @@
+<html>
+	<head>
+       <meta charset="utf-8">
+ 	<meta name="viewport" content="width=device-width,initial-scale=1">
+ 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+ 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic" rel="stylesheet">
+	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=zocial"/>
+        <title></title>
+	</head>
+<body>
+    <script type="text/javascript">
+        function getCategory(catId) {
+            alert("Hi" + catId);
+            $.ajax(
+                    {
+                        type: 'POST',
+                        url: '/getCategory/' + catId,
+                        contentType: 'application/octet-stream; charset=utf-8',
+                        data: "{}",
+                        dataType: "json",
+                        success: function(result)
+                        {
+                            if(result)
+                            {
+                                var strHTML;
+                                console.log(result);
+                                //var result = $.parseJSON(result);
+                                //alert("result" + result.items.length);
+                                subCat = $("#subcategory");
+                                subCat.empty();
+                                for (var i = 0; i < result.items.length; i++) {
+                                    alert("result " + result.items[i].ItemName)
+                                    subCat.append("<a href='/ItemCatlog/" + result.items[i].id + "/displayItemDetail/'>" + result.items[i].ItemName + "</a><br>");
+                                    }
+                            }
+                           
+                        }
+
+                });
+        }
+    </script>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3"><img class="title-logo" src="images\logo.png" alt="Udacity logo"></div>
+            <div class="col-md-9 text-uppercase text-right">
+                <h2 class="title-super text-thin">Catalog App</h2>
+                <h5 class="text-muted">by Sonali Homkar</h5>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12"><a href="/logout">Logout</a></div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                    <li><strong>{{ message }}</strong></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                {% if not i %}
+                
+                {% for i in category %}
+                <div>
+                <!--<a href="/ItemCatlog/{{i.id}}/displayItem">{{i.catName}}</a> -->
+                <a onclick="getCategory({{i.id}})">{{ i.catName }}</a>                    
+                </div>
+                {% endfor %}
+                
+                {% else %}
+                <div>No records to display Create new category</div>
+                {% endif %}
+                <a href='{{url_for('newCategory')}}'>Create new Category</a>
+                <a href="/ItemCatlog/addItem/">add Item</a>
+            </div>
+
+        
+            <div id="subcategory" class="col-md-6">
+                {% for i in items %}
+                <div>
+                    <a href='/ItemCatlog/{{i.id}}/displayItemDetail/'>{{i.itemName}}</a>
+                </div>
+                {% endfor %}
+            </div>
+
+            
+        </div>
+   </div>
+
+            
+
+            
+            
+</body>
+</html>

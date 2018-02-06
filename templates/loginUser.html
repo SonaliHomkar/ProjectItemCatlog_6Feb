@@ -1,0 +1,188 @@
+<html>
+    <head>
+       <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.mainn.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=zocial"/>
+    <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
+         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
+          </script>
+
+        <script src="//apis.google.com/js/platform.js?onload=start"> </script>
+        <!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
+        <title></title>
+    </head>
+<body>
+    <script>
+        window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '831710037008861',
+          xfbml      : true,
+          version    : 'v2.10'
+        });
+        FB.AppEvents.logPageView();
+      };
+</script>
+<!-- facebook login -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.10&appId=831710037008861";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<div
+    class="fb-login-button"
+    data-width="48"
+    data-max-rows="1"
+    data-size="medium"
+    data-button-type="login_with"
+    data-show-faces="true"
+    data-auto-logout-link="true"
+    scope = "public_profile,email"
+    data-use-continue-as="true"
+    onlogin="sendTokenToServer();">
+    Login with Facebook
+</div>
+<script>
+function sendTokenToServer(){
+    var access_token = FB.getAuthResponse()['accessToken'];
+    console.log(access_token);
+    console.log('Welcome!..fetcing your information');
+    FB.api('/me',function(response)
+        {
+            console.log('successful login..' + response.name);
+            $.ajax({
+                type: 'POST',
+                url: '/fbconnect?state={{STATE}}',
+                processData: false,
+                data: access_token,
+                contentType: 'application/octet-stream; charset=utf-8',
+                success: function(result) {
+                    // Handle or verify the server response if necessary.
+                    if (result) {
+                        $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+                        setTimeout(function() {
+                        window.location.href = "/restaurants/";
+                        }, 4000);
+                    }else {
+                        $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                    }
+                }
+                });
+            });
+        }
+</script>
+<!-- facebook login -->
+        <!-- GOOGLE PLUS SIGN IN BUTTON-->
+
+        <div id = "signInButton">
+            <span class="g-signin"
+                    data-scope="openid email"
+                    data-clientid="792410538545-43daq8mabnlnuo58if5f683qd8klotfg.apps.googleusercontent.com"
+                    data-redirecturi="postmessage"
+                    data-accesstype="offline"
+                    data-cookiepolicy="single_host_origin"
+                    data-callback="signInCallback"
+                    data-approvalprompt="force">
+            </span>
+        </div>
+        <div id="result"></div>
+        <script>
+                        function signInCallback(authResult)
+                        {
+                            alert("hi");
+                            if(authResult['code'])
+                            {
+                                alert("into authResult : " + authResult['code']);
+                                // hide sign in button
+                                $("#signInButton").attr('style','display:none');
+                                $.ajax(
+                                    {
+                                        type: 'POST',
+                                        url: '/gconnect?state={{STATE}}',
+                                        processData: false,
+                                        contentType: 'application/octet-stream; charset=utf-8',
+                                        data: authResult['code'],
+                                        success: function(result)
+                                        {
+                                            if(result)
+                                            {
+                                                $('#result').html('Login successful ! <br>' + result +
+                                                '<br> Redirecting...')
+                                                setTimeout(function(){
+                                                    window.location.href = "localhost://5500/";
+                                                },4000);
+                                            }
+                                            else if(authResult['error'])
+                                            {
+                                                console.log('There was an error ' + authResult['error']);
+                                            }
+                                            else
+                                            {
+                                                $('#result').html('Failed to make server-side call ' +
+                                                    'check your configuration and console');
+                                            }
+                                        }
+
+                                });
+                            }
+                        }
+                    </script>
+
+
+        <!-- END GOOGLE PLUS SIGN IN BUTTON-->
+
+
+<form method="post">
+    <h2>Sign in </h2>
+    <div>
+        <a href="/userSignUp" >New User signup form</a>
+    <div>
+         
+            <div >
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                    <li><strong>{{ message }}</strong></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+
+            </div>
+    	<div style="display: flex;"  >
+    		<div class="div1"><label>User Name</label></div>
+    		<div class="div2"><input type="text" name = "txtName" value="{{ strname }}"></div>
+    	</div>
+    	<div style="display: flex;" >
+		    <div class="div1"><label>Password</label></div>
+		    <div class="div2"><input type="password" name = "txtpassword" value="{{ strpassword }}"></div>
+		</div>
+    	<br>
+    	<div style="display: flex;">
+            <div class="div3 error">{{ error }}</div>
+			<div class="div1"><button>submit</button></div>
+			<div class="div2"><button>Reset</button></div>
+    	</div>
+    </div>
+    {% for i in query %}
+    <br>
+    Name : {{i.strname}}
+    <br>
+    password : {{i.strpassword}}
+
+    {% endfor %}
+
+
+
+
+</form>
+</body>
+</html>

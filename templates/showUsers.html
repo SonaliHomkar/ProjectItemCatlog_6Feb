@@ -1,0 +1,34 @@
+<html>
+    <head>
+       <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.mainn.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=zocial"/>
+        <title></title>
+    </head>
+<body>
+
+<form method="post">
+    <h2>Users </h2>
+    {% for i in objUsers %}
+    <br>
+    Name : {{i.userName}}
+    <br>
+    password : {{i.userPassword}}
+    <br>
+    email : {{ i.userEmail }}
+
+    {% endfor %}
+
+
+
+
+</form>
+
+
+</body>
+</html>
