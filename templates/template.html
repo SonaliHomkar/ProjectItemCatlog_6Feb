@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+ 	<meta name="viewport" content="width=device-width,initial-scale=1">
+ 	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js')}}"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.13.0/esm/popper-utils.js">
+ 	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+	<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic" rel="stylesheet">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
+	<link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=zocial"/>
+	 <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
+         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
+          </script>
+
+        <script src="//apis.google.com/js/platform.js?onload=start"> </script>
+        <!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
+        
+        <title></title>
+        
+    </head>
+    <body style="background-color: lightgray;">
+    	<div class="row" style="background-color: navy;">
+            <div class="col-md-2 " ></div>
+            <div class="col-md-7 text-left ">
+                <h2 class="title-super text-thin " style="color:white;">Catalog App</h2>
+            </div>
+            
+            
+            
+        </div>
+    	
+    	{% block content %}
+    	{% endblock %}
+    </body>
+</html>

@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+    <link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
+    <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=zocial"/>
+	</head>
+    <body>
+        <form method="post">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li><strong>{{ message }}</strong></li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+            <h1>Enter New Category</h1>
+            <div>
+                <label>Category : </label>
+                <select name="ddlCategory">
+                    {% for category in categories %}
+                    <option  value="{{category.id}}">{{ category.catName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Title</label>
+                <input type="text" name="itemName" />
+            </div>
+            <div>
+                <label>Description</label>
+                <input type="text" name="description" />
+            </div>
+            <div class="div3 error">{{ error }}</div>
+            <div>
+                <input type="submit" value="Submit" />
+                 <a href="/">Cancel</a>
+            </div>
+
+            
+            
+        </form>
+        
+
+        
+
+    </body>
+</html>

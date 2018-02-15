@@ -1,52 +1,81 @@
-<html>
-	<head>
-		<link rel=stylesheet type=text/css href="{{ url_for('static',filename='styles.css')}}">
-	</head>
-    <body>
-        <form method="post">
-            {% with messages = get_flashed_messages() %}
-            {% if messages %}
-            <ul>
-                {% for message in messages %}
-                <li><strong>{{ message }}</strong></li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% endwith %}
-            <h1>Item Details</h1>
+{% extends "template.html" %}
+{% block content %}
+    <form method="post">
+        <div class="container" style="background-color: white;margin-top: 10px;padding-top: 10px; ">
+            <div class="row">
+                <div class="col-md-12">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                        <li><strong>{{ message }}</strong></li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12"  align="right">
+                    <input type="button" class="btn btn-warning btn-sm" style=""  value="Logout"  onclick="window.location.href='{{ url_for( 'logout') }}';"  name="Logout">
+                </div>    
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class=" text-left" >Item Details</h1>
+                </div>
+                
+            </div>
             {% for i in items %}
-            <div>
-                <label>Category : </label>
-                <label>{{i.catName}}</label>
+            <div class="row">
+                <div class="col-md-3">
+                    <label>Category</label>
+                </div>
+                <div  class="col-md-9" >
+                    <label>{{i.catName}}</label>         
+                </div>
             </div>
-            <div>
-                <label>Title : </label>
-                <label>{{i.itemName}}</label>
+            <div class="row">
+                <div class="col-md-3">
+                    <label>Title</label>
+                </div>
+                <div  class="col-md-9" >
+                    <label>{{i.itemName}}</label>         
+                </div>
             </div>
-            <div>
-                <label>Description : </label>
-                <label>{{i.description}}</label>
+            <div class="row">
+                <div class="col-md-3">
+                    <label>Description</label>
+                </div>
+                <div  class="col-md-9" >
+                    <label>{{i.description}}</label>         
+                </div>
             </div>
-            <div>
-                <label>Created by : </label>
-                <label>{{i.userName}} </label>
+            <div class="row">
+                <div class="col-md-3">
+                    <label>Created by</label>
+                </div>
+                <div  class="col-md-9" >
+                    <label>{{i.userName}}</label>         
+                </div>
             </div>
-
-            <div>
+            <div class="row" style="margin-bottom:10px">
+                
                 {% if  Author %}
+                <div class="col-md-3">
                     <a href="/ItemCatlog/{{i.id}}/EditItem/">Edit</a>
+                    &nbsp;&nbsp;
                     <a href="/ItemCatlog/{{i.id}}/DeleteItem/">Delete</a>
+                </div> 
                 {% endif %}
-                 <a href="/">Cancel</a>
+                <div  class="col-md-9" >
+                    <a href="/">Cancel</a>         
+                </div>
             </div>
-
             {% endfor %}
             
+        </div>
             
-        </form>
+    </form>
         
-
-        
-
-    </body>
-</html>
+{% endblock %}

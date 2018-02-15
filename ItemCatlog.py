@@ -1,5 +1,5 @@
 ## import database and sqlalchemy for CRUD operations ##
-import re
+import re,sys,logging
 import hmac
 import random
 import hashlib
@@ -19,6 +19,8 @@ import requests
 from flask import Flask,render_template, request, redirect, url_for,flash, jsonify
 app = Flask(__name__)
 
+CLIENT_ID = json.loads(
+    open('client_secrets.json','r').read())['web']['client_id']
 
 ## create session and connect to database ##
 engine = create_engine('sqlite:///ItemCatlog.db')
@@ -72,7 +74,7 @@ def set_secure_cookie(name, val):
 def checkCookie():
     if request.cookies.get("UserId"):
         return True
-
+    
 # This function is used to validate category
 def validateCategory(strCategory):
     if strCategory != "":
@@ -176,31 +178,34 @@ def usersSignUp():
     else:
         return render_template('UserSignUp.html')
 
+
 # This function displays the home page with categories and newly added 5 categories. 
 @app.route('/logout')
 def logout():
-    redirect_to_index = redirect(url_for('loginUser'))
-    response = app.make_response(redirect_to_index)
-    if login_session['provider'] == "google":
+    try:
+        redirect_to_index = redirect(url_for('loginUser'))
+        response = app.make_response(redirect_to_index)
+        #if login_session['provider'] == "google":
         gdisconnect()
-    if login_session['provider'] == 'facebook':
-        fbdisconnect()
-    else:
-        del login_session['provider'] 
-        del login_session['username'] 
+        #else:
+        #    del login_session['provider'] 
+        #   del login_session['username'] 
         response.set_cookie("UserId",expires=0)
-    flash("you have been successfully logged out!!")
-    return response
-     
-    
+        flash("You have been successfully logged out!!")
+        return response
+    except:
+        e = sys.exc_info()[1]
+        return "error : " + str(e)
+        
+            
 
 # This function displays the home page with categories and newly added 5 categories. 
 @app.route('/')
 def showCategory():
         if checkCookie():
             category = session.query(Category).all()
-            items = session.query(Item).order_by(Item.id.desc()).limit(5).all()
-            return render_template('category.html',category=category,items=items)
+            items = session.query(Item).order_by(Item.id.desc()).limit(7).all()
+            return render_template('category.html',category=category,items=items,username=login_session['username'])
         else:
             return redirect(url_for('loginUser'))
 
@@ -530,71 +535,98 @@ def gconnect():
                                                 'the authorization code'),401)
             response.headers['Content-Type'] = 'application/json'
             return response
-    
-        # check that access token is valid
-        access_token = credentials.access_token
-        url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
-        h = httplib2.Http()
-        result = json.loads(h.request(url,'GET')[1])
+
         
-        # If there was an error in the access token info, abort.
-        if result.get('error') is not None:
-                response = make_response(json.dumps(result.get('error')),501)
+
+        
+        # check that access token is valid
+        try: 
+            access_token = credentials.access_token
+            url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
+            h = httplib2.Http()
+            result = json.loads(h.request(url,'GET')[1])
+            
+            # If there was an error in the access token info, abort.
+            if result.get('error') is not None:
+                    response = make_response(json.dumps(result.get('error')),501)
+                    response.headers['Content-Type'] = 'application/json'
+                    return response
+            # Verify that the access token is used for the intended user.
+
+            
+            
+            
+            gplus_id = credentials.id_token['sub']
+            if result['user_id'] != gplus_id:
+                    response = make_response(json.dumps("Token's user id" +
+                                                        "doesn't match given" +
+                                                        "user id"), 401)
+                    response.headers['Content-Type'] = 'application/json'
+                    return response
+
+            
+
+            # Verify that the access token is valid for this app.
+            if result['issued_to'] != CLIENT_ID:
+                    response = make_response(json.dumps("Token's clinet id" +
+                                                        "doesn't match " +
+                                                        "app's id"),401)
+                    print ("Token's id doesn't match app's id")
+                    response.headers['Content-Type'] = 'application/json'
+                    return response
+
+            
+
+            # check to see if the user is already logged in
+            stored_access_token = login_session.get('access_token')
+            stored_gplus_id = login_session.get('gplus_id')
+            if stored_access_token is not None and gplus_id == stored_gplus_id:
+                login_session['provider'] = "google"
+                response = make_response(json.dumps('Current user is already connected.'),
+                                         200)
                 response.headers['Content-Type'] = 'application/json'
                 return response
-        # Verify that the access token is used for the intended user.
-        gplus_id = credentials.id_token['sub']
-        if result['user_id'] != gplus_id:
-                response = make_response(json.dumps("Token's user id" +
-                                                    "doesn't match given" +
-                                                    "user id"), 401)
-                response.headers['Content-Type'] = 'application/json'
-                return response
+
+            
+            
+            # Store the access token in the session for later use.
+            login_session['access_token'] = credentials.access_token
+            login_session['gplus_id'] = gplus_id
+
+            # Get user info
+            userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+            params = {'access_token': credentials.access_token, 'alt': 'json'}
+            answer = requests.get(userinfo_url, params=params)
+            
+            data = answer.json()
+             
+
+            login_session['provider'] = "google"
+            login_session['username'] = data['name']
+            login_session['picture'] = data['picture']
+            login_session['email'] = data['email']
 
 
-        # Verify that the access token is valid for this app.
-        if result['issued_to'] != CLIENT_ID:
-                response = make_response(json.dumps("Token's clinet id" +
-                                                    "doesn't match " +
-                                                    "app's id"),401)
-                print ("Token's id doesn't match app's id")
-                response.headers['Content-Type'] = 'application/json'
-                return response
-
-        # check to see if the user is already logged in
-        stored_access_token = login_session.get('access_token')
-        stored_gplus_id = login_session.get('gplus_id')
-        if stored_access_token is not None and gplus_id == stored_gplus_id:
-            response = make_response(json.dumps('Current user is already connected.'),
-                                     200)
-            response.headers['Content-Type'] = 'application/json'
-            return response
-
-        # Store the access token in the session for later use.
-        login_session['access_token'] = credentials.access_token
-        login_session['gplus_id'] = gplus_id
-
-        # Get user info
-        userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
-        params = {'access_token': credentials.access_token, 'alt': 'json'}
-        answer = requests.get(userinfo_url, params=params)
-
-        data = answer.json()
-        login_session['provider'] = 'google'
-        login_session['username'] = data['name']
-        login_session['picture'] = data['picture']
-        login_session['email'] = data['email']
-
-        user_id = getUserId(login_session['email'])
-        if  not user_id:
+            
+            
+            user_id = getUserId(login_session['username'])
+            #return "user id : " + user_id
+            
+            if not user_id:
                 user_id = createUser(login_session)
                 strUser = "New User"
-        else:
-                strUser = ("User Already exist")
+            else:
+                    strUser = ("User Already exist")
 
-        login_session['user_id'] = user_id
-
-
+            login_session['user_id'] = user_id
+            # save user id in cookie
+            cookie_val = user_id
+            response.set_cookie("UserId",cookie_val)
+            
+        except:
+            e = sys.exc_info()[0]
+            return "error : " + e
+        
         output = ''
         output += '<h1>Welcome, '
         output += login_session['username']
@@ -609,12 +641,14 @@ def gconnect():
 
 @app.route("/gdisconnect")
 def gdisconnect():
+        return "into discocnnect after revoke tokden"
         access_token = login_session.get('access_token')
         if access_token is None:
                 response = make_response(json.dumps("Current user is already" +
                                                             "not connected"),401)
                 response.headers['Content-Type'] = 'application/json'
                 return response
+
         
         url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
         h = httplib2.Http()
@@ -626,7 +660,7 @@ def gdisconnect():
                 del login_session['username']
                 del login_session['picture'] 
                 del login_session['email']
-
+                
                 response = make_response(json.dumps('Successfully disconnected'),
                                          200)
                 response.headers['Content-Type'] = 'application/json'
@@ -646,10 +680,10 @@ def createUser(login_session):
         user = session.query(User).filter_by(id=newUser.id).one()
         return user.id
 
-def getUserId(email):
+def getUserId(username):
         try:
-                user = session.query(User).filter_by(userEmail=login_session['email']).one()
-                return user.userEmail
+            user = session.query(User).filter_by(userName=username).one()
+            return user.userName
         except:
                 return None
 

@@ -1,5 +1,22 @@
-{% extends "template.html" %}
-{% block content %}
+<html>
+    <head>
+       <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+    <link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
+    <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=zocial"/>
+    <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
+         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
+          </script>
+
+        <script src="//apis.google.com/js/platform.js?onload=start"> </script>
+        <!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
+        <title></title>
+    </head>
+<body>
     <script>
         window.fbAsyncInit = function() {
         FB.init({
@@ -10,11 +27,8 @@
         FB.AppEvents.logPageView();
       };
 </script>
-
-<!-- facebook login 
-
+<!-- facebook login -->
 <div id="fb-root"></div>
-
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
@@ -35,7 +49,6 @@
     onlogin="sendTokenToServer();">
     Login with Facebook
 </div>
-
 <script>
 function sendTokenToServer(){
     var access_token = FB.getAuthResponse()['accessToken'];
@@ -64,21 +77,29 @@ function sendTokenToServer(){
                 });
             });
         }
-</script>-->
-
+</script>
 <!-- facebook login -->
-
         <!-- GOOGLE PLUS SIGN IN BUTTON-->
 
-        
+        <div id = "signInButton">
+            <span class="g-signin"
+                    data-scope="openid"
+                    data-clientid="792410538545-43daq8mabnlnuo58if5f683qd8klotfg.apps.googleusercontent.com"
+                    data-redirecturi="postmessage"
+                    data-accesstype="offline"
+                    data-cookiepolicy="single_host_origin"
+                    data-callback="signInCallback"
+                    data-approvalprompt="force">
+            </span>
+        </div>
         <div id="result"></div>
         <script>
                         function signInCallback(authResult)
                         {
-                            //alert("hi");
+                            alert("hi");
                             if(authResult['code'])
                             {
-                                //alert("into authResult : " + authResult['code']);
+                                alert("into authResult : " + authResult['code']);
                                 // hide sign in button
                                 $("#signInButton").attr('style','display:none');
                                 $.ajax(
@@ -93,9 +114,9 @@ function sendTokenToServer(){
                                             if(result)
                                             {
                                                 $('#result').html('Login successful ! <br>' + result +
-                                                '<br> Redirecting...');
-                                                setTimeout(function() {
-                                                    window.location.href = "/";
+                                                '<br> Redirecting...')
+                                                setTimeout(function(){
+                                                    window.location.href = "localhost://5500/";
                                                 },4000);
                                             }
                                             else if(authResult['error'])
@@ -119,9 +140,12 @@ function sendTokenToServer(){
 
 
 <form method="post">
-    <div class="container" style="background-color: white;margin-top: 10px; ">
-        <div class="row">
-            <div  class="col-md-12">
+    <h2>Sign in </h2>
+    <div>
+        <a href="/userSignUp" >New User signup form</a>
+    <div>
+         
+            <div >
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
                 <ul>
@@ -133,62 +157,32 @@ function sendTokenToServer(){
                 {% endwith %}
 
             </div>
-                
-        </div>
-       <div class="row">
-            <div class="col-md-12"><h2>Sign In</h2></div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-3">
-                <label>User Name</label>
-            </div>
-            <div class="col-md-9">
-                <input type="text" name = "txtName" value="{{ strname }}">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3">
-                <label>Password</label>
-            </div>
-            <div class="col-md-9">
-                <input type="password" name = "txtpassword" value="{{ strpassword }}">
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-12 error">
-                {{ error }}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3">
-                <input type="submit" class="btn btn-primary btn-sm" value="Submit">
-            </div>
-            <div class="col-md-9">
-                <input type="Reset" class="btn btn-primary btn-sm" value="Reset">
-            </div>
-        </div> 
-        <div class="row"  style="padding-top: 5px;">
-            
-            <div id = "signInButton" class="col-md-3">
-                <span class="g-signin"
-                        data-scope="openid"
-                        data-clientid="792410538545-43daq8mabnlnuo58if5f683qd8klotfg.apps.googleusercontent.com"
-                        data-redirecturi="postmessage"
-                        data-accesstype="offline"
-                        data-cookiepolicy="single_host_origin"
-                        data-callback="signInCallback"
-                        data-approvalprompt="force">
-                </span>
-            </div>
-            <div class="col-md-9">
-                <a href="/userSignUp" >New User signup form</a>
-            </div>
-        </div>
+    	<div style="display: flex;"  >
+    		<div class="div1"><label>User Name</label></div>
+    		<div class="div2"><input type="text" name = "txtName" value="{{ strname }}"></div>
+    	</div>
+    	<div style="display: flex;" >
+		    <div class="div1"><label>Password</label></div>
+		    <div class="div2"><input type="password" name = "txtpassword" value="{{ strpassword }}"></div>
+		</div>
+    	<br>
+    	<div style="display: flex;">
+            <div class="div3 error">{{ error }}</div>
+			<div class="div1"><button>submit</button></div>
+			<div class="div2"><button>Reset</button></div>
+    	</div>
     </div>
-    
-    
+    {% for i in query %}
+    <br>
+    Name : {{i.strname}}
+    <br>
+    password : {{i.strpassword}}
+
+    {% endfor %}
+
+
+
 
 </form>
-{% endblock %}
+</body>
+</html>

@@ -1,32 +1,49 @@
-<html>
-	<head>
-		<link rel=stylesheet type=text/css href="{{ url_for('static',filename='styles.css')}}">
-	</head>
-    <body>
-        <form method="post">
-            {% with messages = get_flashed_messages() %}
-            {% if messages %}
-            <ul>
-                {% for message in messages %}
-                <li><strong>{{ message }}</strong></li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% endwith %}
-            <div>
-                <strong>Are you sure you want to delete</strong>
-                <input type="submit" value="Submit" />
+{% extends "template.html" %}
+{% block content %}
+    <form method="post">
+        <div class="container" style="background-color: white;margin-top: 10px; ">
+            <div class="row">
+                <div class="col-md-12">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                        <li><strong>{{ message }}</strong></li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% endwith %}
+                </div>
             </div>
+            <div class="row">
+                <div class="col-md-12"  align="right" style="margin-top: 10px;">
+                    <input type="button" class="btn btn-warning btn-sm" style=""  value="Logout"  onclick="window.location.href='{{ url_for( 'logout') }}';"  name="Logout">
+                </div>    
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class=" text-left" >Delete Item</h1>
+                </div>
+            </div>
+             <div class="row" style="padding-bottom:10px;">
+                <div class="col-md-4">
+                    <strong>Are you sure you want to delete item</strong>
+                </div>
+                <div class="col-md-8" align="left">
+                     <input type="submit" class="btn btn-primary btn-sm" value="Submit" />&nbsp;&nbsp;
+                     <input type="button" class="btn btn-primary btn-sm" style=""  value="Cancel"  onclick="window.location.href='{{ url_for( 'showCategory') }}';"  name="Cancel">
+                </div>
+                
+           </div>
+           
+        </div>
+            
             
            
 
             
             
             
-        </form>
+    </form>
         
-
-        
-
-    </body>
-</html>
+{% endblock %}
